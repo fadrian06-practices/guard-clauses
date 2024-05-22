@@ -24,24 +24,24 @@ final class SendBirthdayGreetingService
 
   public function __invoke(UserId $userId): int
   {
-    if ($this->isUserReady($userId)) {
-      if ($this->notificationAvailabilityChecker->__invoke()) {
-        if ($this->isTheRightMomentToNotifyThisUser($userId)) {
-          $notificationContent = $this->calculateNotificationContent($userId);
-          $this->notificationSender->__invoke($notificationContent);
-
-          return self::NOTIFICATION_SUCCESSFULLY_SENT;
-        } else {
-          return self::NOTIFICATION_NOT_SENT;
-        }
-      } else {
-        $this->recordNotificationAvailabilityError();
-
-        throw new NotificationIsNotAvailable;
-      }
-    } else {
+    if (!$this->isUserReady($userId)) {
       throw new UserIsNotReady;
     }
+
+    if (!$this->notificationAvailabilityChecker->__invoke()) {
+      $this->recordNotificationAvailabilityError();
+
+      throw new NotificationIsNotAvailable;
+    }
+
+    if (!$this->isTheRightMomentToNotifyThisUser($userId)) {
+      return self::NOTIFICATION_NOT_SENT;
+    }
+
+    $notificationContent = $this->calculateNotificationContent($userId);
+    $this->notificationSender->__invoke($notificationContent);
+
+    return self::NOTIFICATION_SUCCESSFULLY_SENT;
   }
 
   private function isUserReady(UserId $userId): bool
