@@ -6,21 +6,15 @@ use App\Domain\Models\NotificationIsNotAvailable;
 use App\Domain\Models\UserId;
 use App\Domain\Models\UserIsNotReady;
 
-final class SendBirthdayGreetingService
+final readonly class SendBirthdayGreetingService
 {
   const NOTIFICATION_NOT_SENT = 0;
   const NOTIFICATION_SUCCESSFULLY_SENT = 1;
 
-  private $notificationAvailabilityChecker;
-  private $notificationSender;
-
   public function __construct(
-    NotificationAvailabilityChecker $aNotificationAvailabilityChecker,
-    NotificationSender $aNotificationSender
-  ) {
-    $this->notificationAvailabilityChecker = $aNotificationAvailabilityChecker;
-    $this->notificationSender = $aNotificationSender;
-  }
+    private NotificationAvailabilityChecker $notificationAvailabilityChecker,
+    private NotificationSender $notificationSender
+  ) {}
 
   public function __invoke(UserId $userId): int
   {
@@ -59,7 +53,5 @@ final class SendBirthdayGreetingService
     return null;
   }
 
-  private function recordNotificationAvailabilityError(): void
-  {
-  }
+  private function recordNotificationAvailabilityError(): void {}
 }
